@@ -1,11 +1,10 @@
 package CFDiTest;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.WebElement;
-
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -13,8 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
@@ -26,23 +23,37 @@ import java.util.List;
 public class CFDiTest {
 
     WebDriver driver;
+    int tiempo_captcha = 10;
     String opcion;
-    String RFC = "XXXXXXXXXXX";
+    String RFC = "RFCRFCRFCRFC2";
     String CIEC = "xXXXXXXXXXX";
     String fechaInicial = "02/02/2016";
     String fechaFinal = "04/04/2016";
 
     public CFDiTest() {
-        System.setProperty("webdriver.gecko.driver","C:\\resources\\geckodriver.exe" );
-       driver = new FirefoxDriver();
+        //System.setProperty("webdriver.gecko.driver","C:\\resources\\geckodriver.exe" );
+       //driver = new FirefoxDriver();
         // System.setProperty("webdriver.ie.driver","C:\\resources\\IEDriverServer.exe");
-       // driver = new InternetExplorerDriver();
+       //driver = new InternetExplorerDriver();
+
+    }
+
+    public void profileTest(){
+        FirefoxProfile prof = new FirefoxProfile();
+        //TODO prof.setPreference();
     }
 
 
     public static void main(String[] args) {
         CFDiTest webSrcapper = new CFDiTest();        webSrcapper.openTestSite();
-        webSrcapper.loginSAT();
+        if(webSrcapper.loginSAT()){
+            System.out.println("Exito");
+            //Continue
+        }else{
+            System.out.println("Fallo");
+            webSrcapper.driver.close();
+            webSrcapper.driver.quit();
+        }
         //webSrcapper.getText();
         //webSrcapper.saveScreenshot();
         //webSrcapper.closeBrowser();
@@ -54,27 +65,23 @@ public class CFDiTest {
 
     }
 
-    public void loginSAT() {
-     //   WebElement userName_editbox = driver.findElement(By.name("ecom_user_id"));
-       // WebElement password_editbox = driver.findElement(By.name("Ecom_Password"));
-        //WebElement submit_button = driver.findElement(By.id("sumbit"));
-
-//        userName_editbox.sendKeys(RFC);
-  //      password_editbox.sendKeys(CIEC);
-        //
-       /* try {
-            driver.wait(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
+    public boolean loginSAT() {
         WebDriverWait wait = new WebDriverWait(driver, 5);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@value='Enviar']")));
-        WebElement submit_button = driver.findElement(By.xpath("//input[@value='Enviar']"));
+        WebElement password_editbox = driver.findElement(By.name("Ecom_Password"));
+        WebElement userName_editbox = driver.findElement(By.name("Ecom_User_ID"));
         System.out.println("done "+driver.getTitle());
-        submit_button.click();
-        submit_button.click()
-        submit_button.click();
-        driver.quit();
+        userName_editbox.sendKeys(RFC);
+        password_editbox.sendKeys(CIEC);
+        wait = new WebDriverWait(driver, tiempo_captcha);
+        try{
+            wait.until(ExpectedConditions.titleContains("NetIQ Access"));
+            return true;
+        }catch (TimeoutException exLogin){
+            System.out.println(exLogin);
+            return false;
+        }
+
     }
 
 
